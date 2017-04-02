@@ -1,0 +1,6 @@
+use std::io;
+
+fn main() {
+   println!("Packet Analyzer - Rust version");
+   // todo : stdin read, end on eof
+}
