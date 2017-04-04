@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"bufio"
 	"os"; "regexp"
+	"encoding/hex"
 )
 
 type dataLine struct {
@@ -43,12 +44,24 @@ func analyze(line string) dataLine {
 	
 	dl := dataLine{loaded: true, offset: /*sms[1]*/0}
 
+
+	//var dst [20]byte 
+	sms1dec, _ := hex.DecodeString(sms[1])
+
+
+	
 	var data string
 	data = sms[2]
+
+	fmt.Printf("__%v__; %v, %v\n", sms[1], len(sms1dec),sms1dec)
 
 	// todo: skip whitespaces, read 2 bytes, if hexabytes, convert to byte, skip, continue until end of string
 	// or bad character encountered
 	fmt.Printf("DATA=%v\n", data)
+
+	kkt, _ := hex.DecodeString(data[:4])
+	fmt.Printf("%v, %v, %v\n",data[:4], len(kkt),kkt)
+	
 	
 	return dl
 }
