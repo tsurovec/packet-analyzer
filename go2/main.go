@@ -15,8 +15,12 @@ type dataLine struct {
 	data []byte
 }
 
-type layer_data interface {
+type layer interface {
+	load([]byte) (layer, uint16)
+	getName() string
+	getColor() string
 	
+	// get fields/print
 }
 
 type ethernet_frame struct {
@@ -40,34 +44,107 @@ type ip_header struct {
 	ip_dst uint32;	
 }
 
+type colored_data struct {
+	offset uint16
+	color string
+}
+
+// todo: groupBy N bytes, perLine N bytes
+func printColored(boundaries []colored_data, data []byte) []string {
+	grouping := 2
+	per_line := 16
+	// 16 bytes per line, grouped by 2 bytes
+	nlines := len(data) / 16
+	if len(data) % 16 > 0 {
+		nlines++
+	}
+	out := make([]string, nlines)
+
+	kolo := "\x1B[0m"
+	
+	for line := 0; line < nlines; line++ {
+//		line_data := data[per_line * line:per_line]
+
+		s := "\t0x"
+		xy := make([]byte, 2)
+		line_offset := line * per_line
+		xy[0] = byte(line_offset >> 8)
+		xy[1] = byte(line_offset & 0xff)
+		s = s + hex.EncodeToString(xy) + ":\t" + kolo
+
+
+		line_length := per_line
+		if line == nlines -1 {
+			line_length = len(data) % 16
+		}
+
+		for b := 0; b < line_length; b++ {
+			total_offset := line * per_line + b
+
+			// inserting coulourings
+			for x := 0; x < len(boundaries); x++ {
+				//fmt.Println("!")
+				if(boundaries[x].offset == uint16(total_offset)) {
+					s = s + boundaries[x].color
+					kolo =  boundaries[x].color
+				}
+			}
+	
+			// add byte from total_offset
+			xxx := make([]byte, 1)
+			xxx[0] = data[total_offset]
+			s = s + hex.EncodeToString(xxx)
+			
+			// if b > 0 && b % grouping == 0, insert space
+			
+//		fmt.Printf("(b=%v, s=%v)",b, s)
+			if b > 0 && (b-1) % grouping == 0 {
+				s = s + " "
+//				fmt.Printf("(%v)",b)
+			}
+			
+		}
+		
+		out[line] = s + "\x1B[0m"
+	}
+	
+	return out
+}
+
 func main() {
 	fmt.Println("PAGO \x1B[32m>\x1B[0m")
-
+	coloring := []colored_data{ colored_data{offset: 0, color: "\x1B[32m"},
+		colored_data{offset: 14, color: "\x1B[33m"},
+		colored_data{offset: 34, color: "\x1B[36m"},
+		colored_data{offset: 54, color: "\x1B[35m"},
+	}
 	reader := bufio.NewReader(os.Stdin)
-
+	//var l2 layer
+	//layer = ethernet_frame{}
 	var line string
 	var ok error
 	ok = nil
 	ll := false
 	var packet []byte 
+	var data_lines []dataLine
+	//var wasdataline boolean
 	for ok == nil {
 		line, ok = reader.ReadString('\n')
 		
-		fmt.Printf("%v", line)
-		a := analyze(line)
+		a := analyze(line)		
 		if a.loaded {
 			ll = true
 			packet = append(packet, a.data...)
-//			fmt.Printf("Offset = %v; Data: %v\n", a.offset, a.data)
-//			if a.offset == 0 {
-//				ef, r := get_l2(a.data)
-//				fmt.Printf("EtherType = %v; %v\n", ef.ethertype, len(r))
-			
-//			}			
+			data_lines = append(data_lines, a)
 		}
 
 
 		if (!a.loaded && ll) || (a.loaded && len(a.data) < 16) {
+			clines := printColored(coloring, packet)
+			for i := 0; i< len(clines); i++ {
+				fmt.Println(clines[i])
+			}
+			
 			ll = false
 			fmt.Printf("Interpreting packet, len = %v\n", len(packet))
 			// todo: interpretation
@@ -82,9 +159,15 @@ func main() {
 				iph.ip_src & 0xff, len(r2))
 			
 
-			packet =packet [:0]
-
+			packet = packet[:0]
+			data_lines = data_lines[:0]
 		}
+
+		if(!a.loaded){
+			fmt.Printf("%v", line)
+		}
+
+		
 	}	
 	
 	fmt.Printf("END %v\n\n", ok)
