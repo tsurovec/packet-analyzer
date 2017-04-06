@@ -80,6 +80,7 @@ func printColored(boundaries []colored_data, data []byte) []string {
 	if len(data) % 16 > 0 {
 		nlines++
 	}
+	
 	out := make([]string, nlines)
 
 	kolo := "\x1B[0m"
@@ -94,7 +95,7 @@ func printColored(boundaries []colored_data, data []byte) []string {
 
 
 		line_length := per_line
-		if line == nlines -1 {
+		if line == nlines - 1 && len(data) % 16 > 0 {
 			line_length = len(data) % 16
 		}
 
@@ -153,7 +154,6 @@ func main() {
 	var data_lines []dataLine
 	for ok == nil {
 		line, ok = reader.ReadString('\n')
-		
 		a := analyze(line)		
 		if a.loaded {
 			ll = true
