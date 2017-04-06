@@ -113,15 +113,13 @@ func printColored(boundaries []colored_data, data []byte) []string {
 			
 			// if b > 0 && b % grouping == 0, insert space
 			
-//		fmt.Printf("(b=%v, s=%v)",b, s)
 			if b > 0 && (b-1) % grouping == 0 {
 				s = s + " "
-//				fmt.Printf("(%v)",b)
 			}
 			
 		}
 		
-		out[line] = s + "\x1B[0m"
+		out[line] = s + COLOR_NORMAL
 	}
 	
 	return out
@@ -143,15 +141,12 @@ func main() {
 		colored_data{offset: 54, color: "\x1B[35m"},
 	}
 	reader := bufio.NewReader(os.Stdin)
-	//var l2 layer
-	//layer = ethernet_frame{}
 	var line string
 	var ok error
 	ok = nil
 	ll := false
 	var packet []byte 
 	var data_lines []dataLine
-	//var wasdataline boolean
 	for ok == nil {
 		line, ok = reader.ReadString('\n')
 		
@@ -222,42 +217,6 @@ func main() {
 	fmt.Println(sf)
 }
 
-func get_l2(data []byte) (ethernet_frame, []byte) {
-	ef := ethernet_frame{}
-
-
-	for i := 0 ; i < 6; i++ {
-		ef.mac_dest[i] = data[i]
-	}
-	for i := 0 ; i < 6; i++ {
-		ef.mac_src[i] = data[6 + i]
-	}
-	ef.ethertype = binary.BigEndian.Uint16(data[12:14])	
-	return ef, data[14:]
-}
-
-/*func get_l3(ethertype uint16, data []byte) (ip_header, []byte) {
-	ip := ip_header{}
-
-	ip.version_ihl = data[0]
-	ip.dscp_ecn = data[1]
-	ip.total_length = binary.BigEndian.Uint16(data[1:3])
-	// etc.
-	ip.ip_src = binary.BigEndian.Uint32(data[12:16])
-	ip.ip_dst = binary.BigEndian.Uint32(data[16:20])
-//	for i := 0 ; i < 6; i++ {
-//		ef.mac_dest[i] = data[i]
-//	}
-//	for i := 0 ; i < 6; i++ {
-//		ef.mac_src[i] = data[6 + i]
-//	}
-//	ef.ethertype = binary.BigEndian.Uint16(data[12:14])	
-//	return ef, data[14:]
-
-	l4offset := 20 // default ip header length
-	return ip, data[l4offset:]
-}*/
-
 func analyze(line string) dataLine {
 	regex, _ := regexp.Compile("^\\s*0x([0-9a-fA-F]{4}):\\s+(.*)\\s*$")
 	
@@ -278,7 +237,6 @@ func analyze(line string) dataLine {
 	for nonempry {
 		onebyte := dataRegex.FindStringSubmatch(data)
 		if len(onebyte) > 0 {
-			//fmt.Printf("\t1: %v ; %v\n", onebyte[1], len(onebyte))
 			deko, _ := hex.DecodeString(onebyte[1])
 			tgt = append(tgt, deko[0])
 			if(len(onebyte) > 2) {

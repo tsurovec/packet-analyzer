@@ -44,6 +44,8 @@ func (this ip_packet)get_lines() []string {
 	return []string {
 		fmt.Sprintf("Version: %d", this.version_ihl >> 4),
 		fmt.Sprintf("IHL: %d", this.version_ihl & 0x0f),
+		fmt.Sprintf("DSCP_ECN: %d", this.dscp_ecn),
+		fmt.Sprintf("Total length: %d", this.total_length),
 		fmt.Sprintf("Protocol: %d", this.protocol),
 		fmt.Sprintf("Source IP: %s", this.get_ip_string(this.ip_src)),
 		fmt.Sprintf("Destination IP: %s", this.get_ip_string(this.ip_dst)),
