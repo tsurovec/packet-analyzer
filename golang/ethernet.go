@@ -46,9 +46,12 @@ func (this ethernet_frame) getName() string {
 	return "Ethernet"
 }
 func (this ethernet_frame)next_layer_hint() int {
-	if this.ethertype == 0x800 {
+	switch this.ethertype {
+	case 0x800:
 		return IP
+	case 0x806:
+		return ARP
+	default:
+		return UNKNOWN
 	}
-//todo: if ethertype == 0x800, then ip; 806->arp,etc
-	return UNKNOWN
 }

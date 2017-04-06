@@ -43,9 +43,9 @@ type colored_data struct {
 
 const (
 	ETHERNET = iota
+	ARP = iota
 	IP = iota
 	ICMP = iota
-	ARP = iota
 	TCP = iota
 	UDP = iota
 	HTTP = iota
@@ -61,6 +61,8 @@ func load_layer(type_hint int, data []byte) (layer, uint16) {
 	switch type_hint {
 	case ETHERNET:
 		r = ethernet_frame{}
+	case ARP:
+		r = arp{}
 	case IP:
 		r = ip_packet{}
 	case ICMP:
