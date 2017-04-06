@@ -61,6 +61,8 @@ func load_layer(type_hint int, data []byte) (layer, uint16) {
 		r = ip_packet{}
 	case TCP:
 		r = tcp_packet{}
+	case TLS_RECORD:
+		r = tls_record{}
 	default:
 		r = unknown_layer{} 
 	}
@@ -194,9 +196,9 @@ func main() {
 
 			// Textual lines
 			for i = 0; i < len(layers); i++ {
-				fmt.Printf("Layer %s%s%s:\n", layers[i].get_color(), layers[i].getName(), COLOR_NORMAL)
+				fmt.Printf("\tLayer %s%s%s:\n", layers[i].get_color(), layers[i].getName(), COLOR_NORMAL)
 				for j := 0; j < len(layers[i].get_lines()); j++ {
-					fmt.Printf("\t%s\n", layers[i].get_lines()[j])
+					fmt.Printf("\t\t%s\n", layers[i].get_lines()[j])
 				} 
 			}
 			
