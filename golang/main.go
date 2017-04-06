@@ -59,6 +59,8 @@ func load_layer(type_hint int, data []byte) (layer, uint16) {
 		r = ethernet_frame{}
 	case IP:
 		r = ip_packet{}
+	case TCP:
+		r = tcp_packet{}
 	default:
 		r = unknown_layer{} 
 	}

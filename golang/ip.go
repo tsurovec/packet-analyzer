@@ -38,15 +38,16 @@ func (this ip_packet)getName() string {
 	return "IP"
 }
 func (this ip_packet)next_layer_hint() int {
+	if(this.protocol == 6) {
+		return TCP
+	}	
 	return UNKNOWN
 }
 func (this ip_packet)get_lines() []string {
 	return []string {
-		fmt.Sprintf("Version: %d", this.version_ihl >> 4),
-		fmt.Sprintf("IHL: %d", this.version_ihl & 0x0f),
-		fmt.Sprintf("DSCP_ECN: %d", this.dscp_ecn),
-		fmt.Sprintf("Total length: %d", this.total_length),
-		fmt.Sprintf("Protocol: %d", this.protocol),
+		fmt.Sprintf("Version: %d; IHL: %d; DSCP_ECN: %d", this.version_ihl >> 4, this.version_ihl & 0x0f, this.dscp_ecn),
+		fmt.Sprintf("Total length: %d; Id: %d", this.total_length, this.identification),
+		fmt.Sprintf("FlagFOffset = %d; TTL = %d; Protocol: %d", this.flags_f_offset, this.ttl, this.protocol),
 		fmt.Sprintf("Source IP: %s", this.get_ip_string(this.ip_src)),
 		fmt.Sprintf("Destination IP: %s", this.get_ip_string(this.ip_dst)),
 	}
@@ -59,5 +60,5 @@ func (this ip_packet)get_color() string {
 	return this.color
 }
 func (this ip_packet)get_ip_string(ip uint32) string {
-	return fmt.Sprintf("%d.%d.%d.%d",ip >> 24, 0xf&(ip>>16), 0xf&(ip>>8), 0xf&ip)
+	return fmt.Sprintf("%d.%d.%d.%d",ip >> 24, 0xff&(ip>>16), 0xff&(ip>>8), 0xff&ip)
 }
