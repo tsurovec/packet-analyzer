@@ -44,10 +44,14 @@ type colored_data struct {
 const (
 	ETHERNET = iota
 	IP = iota
+	ICMP = iota
 	ARP = iota
 	TCP = iota
+	UDP = iota
 	HTTP = iota
 	TLS_RECORD = iota
+	TLS_HANDSHAKE = iota
+	TLS_CLIENT_HELLO = iota
 	UNKNOWN = iota
 )
 
@@ -59,10 +63,18 @@ func load_layer(type_hint int, data []byte) (layer, uint16) {
 		r = ethernet_frame{}
 	case IP:
 		r = ip_packet{}
+	case ICMP:
+		r = icmp{}
 	case TCP:
 		r = tcp_packet{}
+	case UDP:
+		r = udp_datagram{}
 	case TLS_RECORD:
 		r = tls_record{}
+	case TLS_HANDSHAKE:
+		r = tls_handshake{}
+	case TLS_CLIENT_HELLO:
+		r = tls_client_hello{}
 	default:
 		r = unknown_layer{} 
 	}
@@ -134,17 +146,11 @@ func main() {
 	colors := []string {COLOR_RED,
 		COLOR_GREEN,
 		COLOR_YELLOW,
-		COLOR_BLUE,
 		COLOR_MAGENTA,
-		COLOR_CYAN}
+		COLOR_CYAN,
+		COLOR_BLUE,}
 	
-	fmt.Println("PAGO \x1B[32m>\x1B[0m")
-	coloring := []colored_data{
-		colored_data{offset: 0, color: "\x1B[32m"},
-		colored_data{offset: 14, color: "\x1B[33m"},
-		colored_data{offset: 34, color: "\x1B[36m"},
-		colored_data{offset: 54, color: "\x1B[35m"},
-	}
+	coloring := []colored_data{}
 	reader := bufio.NewReader(os.Stdin)
 	var line string
 	var ok error
@@ -185,7 +191,7 @@ func main() {
 					colors[i]})
 				current_color = colors[i]
 				layers = append(layers, current_layer)
-				i++
+				i = (i + 1) % len(colors)
 			} 
 
 			// Colored lines with data

@@ -38,10 +38,16 @@ func (this ip_packet)getName() string {
 	return "IP"
 }
 func (this ip_packet)next_layer_hint() int {
-	if(this.protocol == 6) {
+	switch this.protocol {
+	case 1:
+		return ICMP
+	case 6:
 		return TCP
-	}	
-	return UNKNOWN
+	case 17:
+		return UDP
+	default:
+		return UNKNOWN
+	}
 }
 func (this ip_packet)get_lines() []string {
 	return []string {

@@ -40,7 +40,7 @@ func (this tcp_packet)get_lines() []string {
 	return []string {
 		fmt.Sprintf("Source port: %d; Destination port: %d",
 			this.source_port, this.dest_port),
-		fmt.Sprintf("Data offse (= TCP header size): %d", (0xf0&this.dataoffset_000_ns) >> 2),
+		fmt.Sprintf("Data offset (= TCP header size): %d", (0xf0&this.dataoffset_000_ns) >> 2),
 	}
 }
 func (this tcp_packet)set_color(color string) layer {

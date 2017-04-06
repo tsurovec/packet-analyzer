@@ -18,13 +18,18 @@ func (this tls_record)load(data []byte) (layer, uint16) {
 	this.version = binary.BigEndian.Uint16(data[1:3])
 	this.length = binary.BigEndian.Uint16(data[3:5])
 	
-	return this, uint16(this.length)
+	return this, uint16(/*this.length*/5)
 }
 func (this tls_record)getName() string {
 	return "TLS RECORD"
 }
 func (this tls_record)next_layer_hint() int {
-	return UNKNOWN
+	switch this.content_type {
+	case 22:
+		return TLS_HANDSHAKE
+	default:
+		return UNKNOWN
+	}
 }
 func (this tls_record)get_lines() []string {
 	return []string {
