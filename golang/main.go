@@ -151,7 +151,7 @@ func main() {
 		COLOR_MAGENTA,
 		COLOR_CYAN,
 		COLOR_BLUE,}
-	
+
 	coloring := []colored_data{}
 	reader := bufio.NewReader(os.Stdin)
 	var line string
